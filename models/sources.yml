@@ -5,4 +5,114 @@ sources:
     database: postgres
     schema: public
     tables:
-      - name: activity
+      - name: deal_changes
+        description: |
+          This source table records changes to fields within deals. Each row represents a change to a specific field of a deal, such as a change in user assignment, stage, or timestamp.
+          The table captures the `deal_id`, the `change_time`, the `changed_field_key` (indicating which field was changed), and the new value of that field.
+        columns:
+          - name: deal_id
+            description: |
+              Unique identifier for the deal. This field links the change to a specific deal in the system.
+            tests:
+              - not_null
+          - name: change_time
+            description: |
+              The timestamp when the change occurred. This field helps track when a specific change to a deal was made.
+            tests:
+              - not_null
+          - name: changed_field_key
+            description: |
+              The key of the field that was changed (e.g., 'user_id', 'stage_id'). This provides context for the type of change made to the deal.
+            tests:
+              - not_null
+          - name: new_value
+            description: |
+              The new value assigned to the field that was changed. For example, this could be the new user ID assigned to a deal or the new stage ID of a deal.
+            tests:
+              - not_null
+
+      - name: stages
+        description: |
+          This source table contains the stages of the sales pipeline. Each stage represents a specific phase in the sales process (e.g., Lead Generation, Qualified Lead, Negotiation).
+          The table maps each stage to a unique `stage_id`, which is used to track the deal's progression through the pipeline.
+        columns:
+          - name: stage_id
+            description: |
+              Unique identifier for each sales stage. This is used to reference a specific stage in the sales process, such as 'Lead Generation' or 'Negotiation'.
+            tests:
+              - not_null
+              - unique
+          - name: stage_name
+            description: |
+              The human-readable name of the sales stage. This provides a description of the phase in the sales process (e.g., 'Lead Generation', 'Closing').
+            tests:
+              - not_null
+
+      - name: activity_types
+        description: |
+          This source table contains the available activity types that can be associated with deals. 
+          Each activity type has a `name`, an `active` status (indicating whether the activity type is currently active or not), and a `type` that categorizes the activity (e.g., 'meeting', 'follow_up').
+        columns:
+          - name: id
+            description: |
+              Unique identifier for each activity type. This field is used to reference and link activity types to specific activities.
+            tests:
+              - not_null
+              - unique
+          - name: name
+            description: |
+              The human-readable name of the activity type (e.g., 'Sales Call 1', 'Follow Up Call'). 
+              This field is used to identify the type of activity in reports and dashboards.
+            tests:
+              - not_null
+          - name: active
+            description: |
+              A flag indicating whether the activity type is currently active ('Yes' or 'No'). 
+              This helps filter out inactive activity types from reports or analysis.
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ['Yes', 'No']
+          - name: type
+            description: |
+              The internal type or category for the activity (e.g., 'meeting', 'sc_2', 'follow_up'). 
+              This field is used for categorizing activities and can be used for filtering or aggregation in analysis.
+            tests:
+              - not_null
+
+      - name: activity 
+        description: |
+          This source table contains activity records for deals. Each row represents an activity (e.g., follow-up, meeting, call) assigned to a user, related to a specific deal. 
+          Activities are tracked with their type (e.g., 'follow_up') and status (i.e., whether the activity is marked as done or not).
+        columns:
+          - name: activity_id
+            description: |
+              Unique identifier for the activity. This is used to track each activity record.
+            tests:
+              - not_null
+              - unique
+          - name: type
+            description: |
+              The type of the activity. For example, 'follow_up', 'call', 'meeting', etc. This helps categorize the activity.
+            tests:
+              - not_null
+          - name: assigned_to_user
+            description: |
+              The ID of the user to whom the activity is assigned. This links the activity to a specific user within the organization.
+            tests:
+              - not_null
+          - name: deal_id
+            description: |
+              The ID of the deal associated with the activity. This links the activity to a specific deal in the CRM.
+            tests:
+              - not_null
+          - name: done
+            description: |
+              A boolean value indicating whether the activity has been completed ('True' for done, 'False' for not done).
+            tests:
+              - not_null
+          - name: due_to
+            description: |
+              The timestamp indicating when the activity is due to be completed. This helps track deadlines for activities related to deals.
+            tests:
+              - not_null

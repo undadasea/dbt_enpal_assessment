@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: rep_sales_funnel_cohort_monthly
+    tags:
+      - kpi_tracking
+      - deal_tracking
+    meta:
+      owner: 'data_team'
+    description: |
+      This model aggregates deal data to track the number of deals at different stages of the sales funnel over time. 
+      It combines data from `sales_stage_changes` and `sales_steps_activity` to determine the funnel steps for each deal, 
+      and aggregates the count of deals by month, funnel step, and KPI name.
+    columns:
+      - name: deals_count
+        description: |
+          The total count of deals for a given month, funnel step, and KPI. This aggregates deals that have progressed through different steps in the sales funnel.
+        tests:
+          - not_null
+      - name: month_deal_created
+        description: |
+          The month in which the deal was created, determined by taking the `change_timestamp` of the first recorded stage change (i.e., when the deal was in stage '1').
+        tests:
+          - not_null
+      - name: funnel_step
+        description: |
+          The funnel step of the deal, which can either be a sales stage (e.g., '2.1', '3.1') or an activity step (e.g., 'meeting', 'call').
+          This field categorizes the deals progression through the sales funnel.
+        tests:
+          - not_null
+      - name: kpi_name
+        description: |
+          The name of the KPI associated with the funnel step. For sales stages, this is the `stage_name`, and for activity steps, its the `step_name`.
+        tests:
+          - not_null

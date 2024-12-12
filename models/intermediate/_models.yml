@@ -1,0 +1,58 @@
+version: 2
+
+models:
+  - name: sales_stage_changes
+    tags:
+      - deal_tracking
+    meta:
+      owner: 'data_team'
+    description: |
+      This model extracts and transforms data from the raw `deal_changes` and `stages` tables to track changes in the deal stage (`stage_id`). 
+      It filters the data to include only changes where the `stage_id` was modified, and enriches it with the `stage_name` from the `stages` table.
+    columns:
+      - name: deal_id
+        description: |
+          Unique identification of a deal. Not unique for the table since it's a changelog.
+        tests: 
+          - not_null
+      - name: change_timestamp
+        description: Timestamp of when a field was changed for a deal in PipeDrive.
+        tests:
+          - not_null
+      - name: stage_id
+        description: Unique identification of a sales stage.
+        tests:
+          - accepted_values:
+              values: ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+      - name: stage_name
+        description: Name of the stage.
+        tests:
+          - not_null
+
+  - name: sales_steps_activity
+    tags:
+      - step_tracking
+    meta:
+      owner: 'data_team'
+    description: |
+      This model extracts and transforms data from the raw `activity` and `activity_types` tables to create a consolidated view of deal steps.
+      It filters activities to include only those marked as "done" and with an active type. The model also assigns custom `step_id` values based on specific activity types (e.g., 'meeting' and 'sc_2').
+    columns:
+      - name: deal_id
+        description: |
+          Unique identifier for the deal. This field links the activity to a specific deal in the system.
+          Not unique in this table since it's a log-type table.
+        tests:
+          - not_null
+      - name: due_to_timestamp
+        description: |
+          The timestamp indicating when the activity was due. This field comes from the `due_to` column in the `activity` table.
+        tests:
+          - not_null
+      - name: step_id
+        description: |
+          A custom step identifier based on the type of activity. This field maps 'meeting' to '2.1' and 'sc_2' to '3.1'.
+      - name: step_name
+        description: Name of the stage.
+        tests:
+          - not_null
